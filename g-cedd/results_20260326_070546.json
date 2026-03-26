@@ -1,0 +1,213 @@
+{
+  "tool": "G-CEDD",
+  "version": "1.0.0",
+  "generated_at": "2026-03-26T07:05:46.625685+00:00",
+  "summary": {
+    "total_issues": 0,
+    "exposed_paths": 0,
+    "secrets_found": 0,
+    "git_objects_found": 0
+  },
+  "path_scan": [
+    {
+      "url": "https://osmanikhelafot.net/.git/HEAD",
+      "path": "/.git/HEAD",
+      "status_code": 403,
+      "content_length": 1242,
+      "content_snippet": "<!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 403 Forbidden\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.git/config",
+      "path": "/.git/config",
+      "status_code": 403,
+      "content_length": 1242,
+      "content_snippet": "<!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 403 Forbidden\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.env",
+      "path": "/.env",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.env.local",
+      "path": "/.env.local",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.env.production",
+      "path": "/.env.production",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.env.staging",
+      "path": "/.env.staging",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/docker-compose.yml",
+      "path": "/docker-compose.yml",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/docker-compose.override.yml",
+      "path": "/docker-compose.override.yml",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/wp-config.php.bak",
+      "path": "/wp-config.php.bak",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.htpasswd",
+      "path": "/.htpasswd",
+      "status_code": 403,
+      "content_length": 1242,
+      "content_snippet": "<!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 403 Forbidden\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.htaccess",
+      "path": "/.htaccess",
+      "status_code": 403,
+      "content_length": 1242,
+      "content_snippet": "<!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 403 Forbidden\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/server-status",
+      "path": "/server-status",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/phpinfo.php",
+      "path": "/phpinfo.php",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.DS_Store",
+      "path": "/.DS_Store",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/config.yml",
+      "path": "/config.yml",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/config.json",
+      "path": "/config.json",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/database.yml",
+      "path": "/database.yml",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.npmrc",
+      "path": "/.npmrc",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/.dockerenv",
+      "path": "/.dockerenv",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/Dockerfile",
+      "path": "/Dockerfile",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/backup.sql",
+      "path": "/backup.sql",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    },
+    {
+      "url": "https://osmanikhelafot.net/dump.sql",
+      "path": "/dump.sql",
+      "status_code": 404,
+      "content_length": 95274,
+      "content_snippet": "<!doctype html>\n<html lang=\"en-US\">\n<head>\n\n\t<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4457897020193017\"\n     crossorigin=\"anonymous\"></script>\n\t\n\t<meta name=\"google-site-verification\" content=\"GQbbhNQ6ZorHhyiVRiSU4bXEoPQ9CD9pRCb-_qflc5w\" />\n\t\n\t<",
+      "exposed": false,
+      "severity": "info"
+    }
+  ],
+  "secret_scan": [],
+  "git_extraction": null
+}

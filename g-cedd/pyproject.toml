@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "g-cedd"
+version = "1.0.0"
+description = "Git & Config Exposure Deep-Dive - Defensive Web Configuration Auditor"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "HexaCyberLab"},
+]
+keywords = ["security", "auditor", "configuration", "git-exposure", "secrets"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "aiohttp>=3.9,<4",
+    "rich>=13.0,<14",
+    "fastapi>=0.110,<1",
+    "uvicorn[standard]>=0.29,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+g-cedd = "g_cedd.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["g_cedd*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
