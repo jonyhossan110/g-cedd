@@ -1,8 +1,27 @@
 # G-CEDD: Git & Config Exposure Deep-Dive
 
+[![CI](https://github.com/jonyhossan110/g-cedd/actions/workflows/ci.yml/badge.svg)](https://github.com/jonyhossan110/g-cedd/actions/workflows/ci.yml)
+[![PyPI version](https://badge.fury.io/py/g-codd.svg)](https://pypi.org/project/g-codd/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/charliermarsh/ruff)
+
 **Defensive Web Configuration Auditor** for internal compliance and security auditing.
 
 G-CEDD helps DevOps and security teams detect accidentally exposed configuration files (`.git/`, `.env`, database dumps, etc.) on internal staging/production servers, and scan local files for leaked secrets using Shannon Entropy analysis combined with regex pattern matching.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Commands](#commands)
+- [Configuration](#configuration-options)
+- [Reports](#reports)
+- [Development](#development)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
@@ -16,7 +35,34 @@ G-CEDD helps DevOps and security teams detect accidentally exposed configuration
 - **JSON Export** - Structured machine-readable reports for integration with CI/CD pipelines
 - **REST API Server** - Web service for serving scan results and integrating with other tools
 
+## Quick Start
+
+```bash
+# Install G-CEDD
+pip install g-codd
+
+# Scan a server for exposed paths
+g-cedd scan --targets https://example.com
+
+# Check local files for secrets
+g-cedd secrets --dir ./project
+
+# Extract git repo from exposed .git
+g-cedd extract --target https://example.com
+
+# Start web dashboard
+g-cedd serve --results-dir ./results
+```
+
 ## Installation
+
+### From PyPI (Recommended)
+
+```bash
+pip install g-codd
+```
+
+### From Source
 
 ```bash
 # Clone the repository
@@ -29,6 +75,11 @@ pip install -e .
 # Or install with dev dependencies
 pip install -e ".[dev]"
 ```
+
+### Requirements
+
+- Python 3.11+
+- pip (latest version recommended)
 
 ## Usage
 
@@ -238,6 +289,16 @@ g_cedd/
 │   └── go_scanner_stub.py # Go integration interface
 └── utils/              # Future utilities
 ```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- Setting up a development environment
+- Coding standards and style guidelines
+- Testing requirements
+- Submitting pull requests
+- Reporting issues
 
 ## License
 
