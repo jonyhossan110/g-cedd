@@ -25,6 +25,8 @@ classifiers = [
 dependencies = [
     "aiohttp>=3.9,<4",
     "rich>=13.0,<14",
+    "fastapi>=0.110,<1",
+    "uvicorn[standard]>=0.29,<1",
 ]
 
 [project.optional-dependencies]

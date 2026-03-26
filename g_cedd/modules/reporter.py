@@ -12,6 +12,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from g_cedd.modules.git_extractor import ExtractionResult
 from g_cedd.modules.path_checker import PathResult
 from g_cedd.modules.secret_analyzer import SecretFinding, _redact
 
@@ -155,9 +156,56 @@ def print_secret_findings(findings: list[SecretFinding]) -> None:
         console.print("[bold green]No secrets detected.[/bold green]")
 
 
+def print_extraction_results(result: ExtractionResult) -> None:
+    """Print git extraction results."""
+    console.print()
+    console.print("[bold cyan]GIT EXTRACTION RESULTS[/bold cyan]")
+    console.print(f"  Target: {result.target}")
+    console.print(f"  HEAD ref: {result.head_ref or 'N/A'}")
+    console.print(f"  Commit SHA: {result.commit_sha or 'N/A'}")
+    console.print(f"  Objects found: {result.objects_found}")
+    console.print(f"  Files extracted: {len(result.files_extracted)}")
+    console.print()
+
+    if result.objects:
+        table = Table(
+            title="Extracted Git Objects",
+            title_style="bold cyan",
+            show_lines=True,
+            border_style="cyan",
+        )
+        table.add_column("SHA", style="white", min_width=12)
+        table.add_column("Type", style="bold", width=10)
+        table.add_column("Size", justify="right", width=10)
+        table.add_column("Source URL", max_width=60)
+
+        for obj in result.objects:
+            type_color = {
+                "commit": "yellow",
+                "tree": "cyan",
+                "blob": "green",
+            }.get(obj.obj_type, "white")
+            type_text = Text(obj.obj_type)
+            type_text.stylize(type_color)
+
+            table.add_row(
+                obj.sha[:12] + "...",
+                type_text,
+                f"{obj.size:,}",
+                obj.source_url,
+            )
+
+        console.print(table)
+
+    if result.errors:
+        for err in result.errors:
+            console.print(f"  [bold red]Error:[/bold red] {err}")
+
+
 def print_summary(
     path_results: list[PathResult] | None = None,
     secret_findings: list[SecretFinding] | None = None,
+    extraction_result: ExtractionResult | None = None,
 ) -> None:
     """Print a final summary panel."""
     console.print()
@@ -176,6 +224,14 @@ def print_summary(
         high = sum(1 for f in secret_findings if f.confidence == "high")
         lines.append(f"Secrets Scan: {len(secret_findings)} findings ({high} high confidence)")
 
+    if extraction_result is not None:
+        lines.append(
+            f"Git Extraction: {extraction_result.objects_found} objects, "
+            f"{len(extraction_result.files_extracted)} files"
+        )
+        if extraction_result.objects_found > 0:
+            total_issues += 1
+
     if total_issues > 0:
         color = "red"
         header = f"AUDIT COMPLETE - {total_issues} ISSUE(S) FOUND"
@@ -190,18 +246,31 @@ def print_summary(
     console.print(Panel(summary_text, border_style=color, padding=(1, 2)))
 
 
+def _make_timestamped_path(output_dir: Path) -> Path:
+    """Generate a timestamped result filename."""
+    ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    return output_dir / f"results_{ts}.json"
+
+
 def generate_json_report(
     path_results: list[PathResult] | None = None,
     secret_findings: list[SecretFinding] | None = None,
-    output_path: str | Path = "g-cedd-report.json",
+    extraction_result: ExtractionResult | None = None,
+    output_path: str | Path | None = None,
+    output_dir: Path | None = None,
 ) -> Path:
     """
     Generate a structured JSON report.
 
+    If output_path is None, generates a timestamped filename in output_dir
+    (defaults to current directory).
+
     Args:
         path_results: Results from path checking.
         secret_findings: Results from secret analysis.
-        output_path: Where to write the JSON report.
+        extraction_result: Results from git extraction.
+        output_path: Explicit output path (overrides timestamped naming).
+        output_dir: Directory for timestamped output files.
 
     Returns:
         Path to the generated report file.
@@ -214,9 +283,11 @@ def generate_json_report(
             "total_issues": 0,
             "exposed_paths": 0,
             "secrets_found": 0,
+            "git_objects_found": 0,
         },
         "path_scan": [],
         "secret_scan": [],
+        "git_extraction": None,
     }
 
     if path_results is not None:
@@ -230,7 +301,19 @@ def generate_json_report(
         report["summary"]["total_issues"] += len(secret_findings)
         report["secret_scan"] = [f.to_dict() for f in secret_findings]
 
-    out = Path(output_path)
+    if extraction_result is not None:
+        report["summary"]["git_objects_found"] = extraction_result.objects_found
+        if extraction_result.objects_found > 0:
+            report["summary"]["total_issues"] += 1
+        report["git_extraction"] = extraction_result.to_dict()
+
+    if output_path is not None:
+        out = Path(output_path)
+    else:
+        dir_path = output_dir or Path(".")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        out = _make_timestamped_path(dir_path)
+
     out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
     console.print(f"\n[bold green]JSON report saved to:[/bold green] {out.resolve()}")
     return out

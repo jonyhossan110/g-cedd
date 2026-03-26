@@ -5,12 +5,15 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
+from pathlib import Path
 
+from g_cedd.modules.banner import print_banner
+from g_cedd.modules.git_extractor import extract_git_objects
 from g_cedd.modules.path_checker import PathCheckerConfig, check_paths
 from g_cedd.modules.reporter import (
     console,
     generate_json_report,
-    print_banner,
+    print_extraction_results,
     print_path_results,
     print_secret_findings,
     print_summary,
@@ -35,6 +38,12 @@ Examples:
   # Scan a directory recursively for secrets
   g-cedd secrets --dir ./config
 
+  # Blind git extraction from a target
+  g-cedd extract --target http://staging.internal.example.com
+
+  # Start the REST API server to expose scan results
+  g-cedd serve --results-dir ./results
+
   # Full audit: path check + secret scan with JSON report
   g-cedd scan --targets http://staging.example.com --secrets-file .env --output report.json
 """,
@@ -52,7 +61,7 @@ Examples:
         nargs="+",
         required=True,
         metavar="URL",
-        help="Base URL(s) of servers to check (e.g., http://staging.internal.example.com)",
+        help="Base URL(s) of servers to check",
     )
     scan_parser.add_argument(
         "--timeout",
@@ -82,9 +91,9 @@ Examples:
     scan_parser.add_argument(
         "--output",
         "-o",
-        default="g-cedd-report.json",
+        default=None,
         metavar="FILE",
-        help="Output JSON report path (default: g-cedd-report.json)",
+        help="Output JSON report path (default: timestamped results_*.json)",
     )
 
     # --- secrets command ---
@@ -116,9 +125,71 @@ Examples:
     secrets_parser.add_argument(
         "--output",
         "-o",
-        default="g-cedd-report.json",
+        default=None,
         metavar="FILE",
-        help="Output JSON report path (default: g-cedd-report.json)",
+        help="Output JSON report path (default: timestamped results_*.json)",
+    )
+
+    # --- extract command ---
+    extract_parser = subparsers.add_parser(
+        "extract",
+        help="Blind git graph extraction from a target with exposed .git",
+    )
+    extract_parser.add_argument(
+        "--target",
+        required=True,
+        metavar="URL",
+        help="Base URL of the target server",
+    )
+    extract_parser.add_argument(
+        "--max-depth",
+        type=int,
+        default=5,
+        dest="max_depth",
+        help="Maximum depth to traverse the object graph (default: 5)",
+    )
+    extract_parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=10,
+        help="Maximum concurrent requests (default: 10)",
+    )
+    extract_parser.add_argument(
+        "--workspace",
+        default="/tmp/gcedd_workspace",
+        metavar="DIR",
+        help="Directory to dump extracted objects (default: /tmp/gcedd_workspace)",
+    )
+    extract_parser.add_argument(
+        "--output",
+        "-o",
+        default=None,
+        metavar="FILE",
+        help="Output JSON report path (default: timestamped results_*.json)",
+    )
+
+    # --- serve command ---
+    serve_parser = subparsers.add_parser(
+        "serve",
+        help="Start a local REST API server exposing scan results",
+    )
+    serve_parser.add_argument(
+        "--results-dir",
+        default=".",
+        dest="results_dir",
+        metavar="DIR",
+        help="Directory containing JSON result files (default: current dir)",
+    )
+    serve_parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind to (default: 0.0.0.0)",
+    )
+    serve_parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to listen on (default: 8000)",
     )
 
     return parser
@@ -179,6 +250,40 @@ def run_secrets(args: argparse.Namespace) -> int:
     return 1 if findings else 0
 
 
+def run_extract(args: argparse.Namespace) -> int:
+    """Execute the blind git extraction command."""
+    workspace = Path(args.workspace)
+    console.print(f"\n[bold]Extracting git objects from: {args.target}[/bold]")
+    console.print(f"[bold]Workspace: {workspace.resolve()}[/bold]\n")
+
+    result = asyncio.run(
+        extract_git_objects(
+            target=args.target,
+            workspace_dir=workspace,
+            max_depth=args.max_depth,
+            max_concurrent=args.concurrency,
+        )
+    )
+
+    print_extraction_results(result)
+    print_summary(extraction_result=result)
+    generate_json_report(extraction_result=result, output_path=args.output)
+
+    return 0 if result.success else 1
+
+
+def run_serve(args: argparse.Namespace) -> None:
+    """Execute the serve command to start the REST API."""
+    from g_cedd.modules.serve import run_server
+
+    results_dir = Path(args.results_dir)
+    if not results_dir.is_dir():
+        console.print(f"[bold red]Error:[/bold red] Results directory not found: {results_dir}")
+        sys.exit(1)
+
+    run_server(results_dir=results_dir, host=args.host, port=args.port)
+
+
 def main() -> None:
     """Main CLI entrypoint."""
     print_banner()
@@ -194,6 +299,11 @@ def main() -> None:
         exit_code = run_scan(args)
     elif args.command == "secrets":
         exit_code = run_secrets(args)
+    elif args.command == "extract":
+        exit_code = run_extract(args)
+    elif args.command == "serve":
+        run_serve(args)
+        exit_code = 0
     else:
         parser.print_help()
         exit_code = 0
