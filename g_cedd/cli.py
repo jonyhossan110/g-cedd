@@ -9,16 +9,20 @@ from pathlib import Path
 
 from g_cedd.modules.banner import print_banner
 from g_cedd.modules.git_extractor import extract_git_objects
+from g_cedd.modules.html_report import generate_html_report
 from g_cedd.modules.path_checker import PathCheckerConfig, check_paths
+from g_cedd.modules.protocol_checker import check_protocol_compliance
 from g_cedd.modules.reporter import (
     console,
     generate_json_report,
     print_extraction_results,
     print_path_results,
+    print_protocol_results,
     print_secret_findings,
     print_summary,
 )
 from g_cedd.modules.secret_analyzer import analyze_directory, analyze_file
+from g_cedd.modules.workspace import create_target_workspace
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,6 +44,12 @@ Examples:
 
   # Blind git extraction from a target
   g-cedd extract --target http://staging.internal.example.com
+
+  # Protocol compliance audit (HEAD/OPTIONS method testing)
+  g-cedd protocol --targets http://staging.internal.example.com
+
+  # Generate Go scanner scaffold for high-performance scanning
+  g-cedd go-scaffold --output-dir ./go_scanner
 
   # Start the REST API server to expose scan results
   g-cedd serve --results-dir ./results
@@ -168,6 +178,57 @@ Examples:
         help="Output JSON report path (default: timestamped results_*.json)",
     )
 
+    # --- protocol command ---
+    protocol_parser = subparsers.add_parser(
+        "protocol",
+        help="HTTP method compliance auditing (HEAD/OPTIONS testing)",
+    )
+    protocol_parser.add_argument(
+        "--targets",
+        nargs="+",
+        required=True,
+        metavar="URL",
+        help="Base URL(s) of servers to test",
+    )
+    protocol_parser.add_argument(
+        "--paths",
+        nargs="*",
+        metavar="PATH",
+        help="Specific paths to test (default: common config paths)",
+    )
+    protocol_parser.add_argument(
+        "--timeout",
+        type=float,
+        default=10.0,
+        help="HTTP request timeout in seconds (default: 10)",
+    )
+    protocol_parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=10,
+        help="Maximum concurrent requests (default: 10)",
+    )
+    protocol_parser.add_argument(
+        "--output",
+        "-o",
+        default=None,
+        metavar="FILE",
+        help="Output JSON report path",
+    )
+
+    # --- go-scaffold command ---
+    go_parser = subparsers.add_parser(
+        "go-scaffold",
+        help="Generate Go fast scanner project scaffold",
+    )
+    go_parser.add_argument(
+        "--output-dir",
+        default="go_scanner",
+        dest="output_dir",
+        metavar="DIR",
+        help="Directory for the Go project (default: ./go_scanner)",
+    )
+
     # --- serve command ---
     serve_parser = subparsers.add_parser(
         "serve",
@@ -203,6 +264,11 @@ def run_scan(args: argparse.Namespace) -> int:
         rate_limit_delay=args.rate_limit,
     )
 
+    # Create target workspace for organized output
+    target_label = args.targets[0] if len(args.targets) == 1 else "multi"
+    workspace = create_target_workspace(target_label)
+    console.print(f"[bold]Workspace: {workspace.resolve()}[/bold]")
+
     console.print(f"\n[bold]Scanning {len(args.targets)} target(s)...[/bold]\n")
 
     path_results = asyncio.run(check_paths(args.targets, config))
@@ -219,11 +285,24 @@ def run_scan(args: argparse.Namespace) -> int:
             return 1
 
     print_summary(path_results=path_results, secret_findings=secret_findings)
+
+    # Save JSON report into workspace
+    json_out = args.output or str(workspace / "results.json")
     generate_json_report(
         path_results=path_results,
         secret_findings=secret_findings,
-        output_path=args.output,
+        output_path=json_out,
     )
+
+    # Generate HTML dashboard into workspace
+    html_out = workspace / "report.html"
+    generate_html_report(
+        path_results=path_results,
+        secret_findings=secret_findings,
+        output_path=html_out,
+        target=target_label,
+    )
+    console.print(f"[bold green]HTML report saved to:[/bold green] {html_out.resolve()}")
 
     exposed_count = sum(1 for r in path_results if r.exposed)
     return 1 if exposed_count > 0 else 0
@@ -253,8 +332,10 @@ def run_secrets(args: argparse.Namespace) -> int:
 def run_extract(args: argparse.Namespace) -> int:
     """Execute the blind git extraction command."""
     workspace = Path(args.workspace)
+    report_ws = create_target_workspace(args.target)
     console.print(f"\n[bold]Extracting git objects from: {args.target}[/bold]")
-    console.print(f"[bold]Workspace: {workspace.resolve()}[/bold]\n")
+    console.print(f"[bold]Object workspace: {workspace.resolve()}[/bold]")
+    console.print(f"[bold]Report workspace: {report_ws.resolve()}[/bold]\n")
 
     result = asyncio.run(
         extract_git_objects(
@@ -267,9 +348,69 @@ def run_extract(args: argparse.Namespace) -> int:
 
     print_extraction_results(result)
     print_summary(extraction_result=result)
-    generate_json_report(extraction_result=result, output_path=args.output)
+
+    json_out = args.output or str(report_ws / "results.json")
+    generate_json_report(extraction_result=result, output_path=json_out)
+
+    html_out = report_ws / "report.html"
+    generate_html_report(
+        extraction_result=result,
+        output_path=html_out,
+        target=args.target,
+    )
+    console.print(f"[bold green]HTML report saved to:[/bold green] {html_out.resolve()}")
 
     return 0 if result.success else 1
+
+
+def run_protocol(args: argparse.Namespace) -> int:
+    """Execute the protocol compliance audit command."""
+    target_label = args.targets[0] if len(args.targets) == 1 else "multi"
+    workspace = create_target_workspace(target_label)
+    console.print(f"\n[bold]Protocol compliance audit on {len(args.targets)} target(s)[/bold]")
+    console.print(f"[bold]Workspace: {workspace.resolve()}[/bold]\n")
+
+    paths = args.paths if args.paths else None
+    results = asyncio.run(
+        check_protocol_compliance(
+            targets=args.targets,
+            paths=paths,
+            timeout=args.timeout,
+            max_concurrent=args.concurrency,
+        )
+    )
+
+    print_protocol_results(results)
+    print_summary(protocol_results=results)
+
+    json_out = args.output or str(workspace / "results.json")
+    generate_json_report(protocol_results=results, output_path=json_out)
+
+    html_out = workspace / "report.html"
+    generate_html_report(
+        protocol_results=results,
+        output_path=html_out,
+        target=target_label,
+    )
+    console.print(f"[bold green]HTML report saved to:[/bold green] {html_out.resolve()}")
+
+    inconsistent = sum(1 for r in results if r.inconsistent)
+    return 1 if inconsistent > 0 else 0
+
+
+def run_go_scaffold(args: argparse.Namespace) -> int:
+    """Generate the Go fast scanner project scaffold."""
+    from g_cedd.modules.go_scanner_stub import generate_go_scaffold
+
+    output_dir = Path(args.output_dir)
+    console.print(f"\n[bold]Generating Go scanner scaffold in: {output_dir.resolve()}[/bold]\n")
+
+    result_dir = generate_go_scaffold(output_dir)
+    console.print(f"[bold green]Go project created at:[/bold green] {result_dir.resolve()}")
+    console.print("\n[bold]To build the Go scanner:[/bold]")
+    console.print(f"  cd {result_dir} && go build -o gcedd-fast-scanner ./cmd/scanner\n")
+
+    return 0
 
 
 def run_serve(args: argparse.Namespace) -> None:
@@ -301,6 +442,10 @@ def main() -> None:
         exit_code = run_secrets(args)
     elif args.command == "extract":
         exit_code = run_extract(args)
+    elif args.command == "protocol":
+        exit_code = run_protocol(args)
+    elif args.command == "go-scaffold":
+        exit_code = run_go_scaffold(args)
     elif args.command == "serve":
         run_serve(args)
         exit_code = 0

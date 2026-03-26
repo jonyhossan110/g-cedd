@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "g-cedd"
-version = "1.0.0"
+version = "2.0.0"
 description = "Git & Config Exposure Deep-Dive - Defensive Web Configuration Auditor"
 readme = "README.md"
 license = {text = "MIT"}

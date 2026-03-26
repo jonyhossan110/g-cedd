@@ -14,6 +14,7 @@ from rich.text import Text
 
 from g_cedd.modules.git_extractor import ExtractionResult
 from g_cedd.modules.path_checker import PathResult
+from g_cedd.modules.protocol_checker import ProtocolCheckResult
 from g_cedd.modules.secret_analyzer import SecretFinding, _redact
 
 console = Console()
@@ -156,6 +157,49 @@ def print_secret_findings(findings: list[SecretFinding]) -> None:
         console.print("[bold green]No secrets detected.[/bold green]")
 
 
+def print_protocol_results(
+    results: list[ProtocolCheckResult],
+) -> None:
+    """Print protocol compliance results in a formatted table."""
+    console.print()
+    console.print("[bold cyan]PROTOCOL COMPLIANCE RESULTS[/bold cyan]")
+    total = len(results)
+    inconsistent = sum(1 for r in results if r.inconsistent)
+    console.print(f"  Total paths tested: {total}")
+    console.print(f"  [bold yellow]Inconsistencies: {inconsistent}[/bold yellow]")
+    console.print()
+
+    if results:
+        table = Table(
+            title="HTTP Method Compliance",
+            title_style="bold cyan",
+            show_lines=True,
+            border_style="cyan",
+        )
+        table.add_column("Path", style="white", min_width=20)
+        table.add_column("Method Responses", min_width=25)
+        table.add_column("Issue", justify="center", width=10)
+        table.add_column("Notes", max_width=50)
+
+        for r in results:
+            parts: list[str] = []
+            for resp in r.responses:
+                if resp.error:
+                    parts.append(f"{resp.method}=ERR")
+                else:
+                    parts.append(f"{resp.method}={resp.status_code}")
+            statuses = ", ".join(parts)
+
+            flag = Text("YES", style="bold yellow") if r.inconsistent else Text("NO")
+            notes = "\n".join(r.notes) if r.notes else ""
+
+            table.add_row(r.path, statuses, flag, notes)
+
+        console.print(table)
+    else:
+        console.print("[bold green]No protocol issues found.[/bold green]")
+
+
 def print_extraction_results(result: ExtractionResult) -> None:
     """Print git extraction results."""
     console.print()
@@ -206,6 +250,7 @@ def print_summary(
     path_results: list[PathResult] | None = None,
     secret_findings: list[SecretFinding] | None = None,
     extraction_result: ExtractionResult | None = None,
+    protocol_results: list[ProtocolCheckResult] | None = None,
 ) -> None:
     """Print a final summary panel."""
     console.print()
@@ -232,6 +277,14 @@ def print_summary(
         if extraction_result.objects_found > 0:
             total_issues += 1
 
+    if protocol_results is not None:
+        inconsistent = sum(1 for r in protocol_results if r.inconsistent)
+        total_issues += inconsistent
+        lines.append(
+            f"Protocol Check: {inconsistent} inconsistencies "
+            f"({len(protocol_results)} paths tested)"
+        )
+
     if total_issues > 0:
         color = "red"
         header = f"AUDIT COMPLETE - {total_issues} ISSUE(S) FOUND"
@@ -256,6 +309,7 @@ def generate_json_report(
     path_results: list[PathResult] | None = None,
     secret_findings: list[SecretFinding] | None = None,
     extraction_result: ExtractionResult | None = None,
+    protocol_results: list[ProtocolCheckResult] | None = None,
     output_path: str | Path | None = None,
     output_dir: Path | None = None,
 ) -> Path:
@@ -269,6 +323,7 @@ def generate_json_report(
         path_results: Results from path checking.
         secret_findings: Results from secret analysis.
         extraction_result: Results from git extraction.
+        protocol_results: Results from protocol compliance testing.
         output_path: Explicit output path (overrides timestamped naming).
         output_dir: Directory for timestamped output files.
 
@@ -277,17 +332,19 @@ def generate_json_report(
     """
     report: dict[str, Any] = {
         "tool": "G-CEDD",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "generated_at": datetime.now(UTC).isoformat(),
         "summary": {
             "total_issues": 0,
             "exposed_paths": 0,
             "secrets_found": 0,
             "git_objects_found": 0,
+            "protocol_inconsistencies": 0,
         },
         "path_scan": [],
         "secret_scan": [],
         "git_extraction": None,
+        "protocol_check": [],
     }
 
     if path_results is not None:
@@ -306,6 +363,12 @@ def generate_json_report(
         if extraction_result.objects_found > 0:
             report["summary"]["total_issues"] += 1
         report["git_extraction"] = extraction_result.to_dict()
+
+    if protocol_results is not None:
+        inconsistent = sum(1 for r in protocol_results if r.inconsistent)
+        report["summary"]["protocol_inconsistencies"] = inconsistent
+        report["summary"]["total_issues"] += inconsistent
+        report["protocol_check"] = [r.to_dict() for r in protocol_results]
 
     if output_path is not None:
         out = Path(output_path)
